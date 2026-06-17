@@ -230,6 +230,10 @@ export class CustomerService {
       },
     });
 
+    if (!customerStatus) {
+      throw new NotFoundException('Cliente não encontrado');
+    }
+
     await this.prisma.customer.update({
       data: {
         status: !customerStatus.status,
