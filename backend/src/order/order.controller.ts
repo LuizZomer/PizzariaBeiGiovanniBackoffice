@@ -1,16 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { IOrderList } from './order.gateway';
+import { FindOrderQueryDto } from './dto/find-order-query.dto';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Get()
-  async findAllOrder(
-    @Query('revenue') revenue: IOrderList['revenue'],
-    @Query('sequence') sequence: IOrderList['sequence'],
-  ) {
-    return this.orderService.FindAllOrder({ revenue, sequence });
+  async findAllOrder(@Query() query: FindOrderQueryDto) {
+    return this.orderService.FindAllOrder(query);
   }
 }
