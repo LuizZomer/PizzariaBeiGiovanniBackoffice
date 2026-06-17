@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { IOrderInfo } from 'src/revenue/revenue.service';
+import { TTypeCheck } from 'src/utils/types';
 
 type IMessageType = 'create' | 'update' | 'delete';
 
@@ -18,20 +19,15 @@ export const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, await bcrypt.genSalt());
 };
 
-export const loyaltyPointsCheck = (orderInfo: IOrderInfo['orderInfo']) => {
-  const numberArray = orderInfo.map((o) => {
-    switch (o.type) {
-      case 'drink':
-        return 10 * o.quantity;
-      case 'noodle':
-        return 45 * o.quantity;
-      case 'pizza':
-        return 50 * o.quantity;
-      case 'salad':
-        return 40 * o.quantity;
-    }
-  });
+const LOYALTY_POINTS: Record<TTypeCheck, number> = {
+  drink: 10,
+  noodle: 45,
+  pizza: 50,
+  salad: 40,
+};
 
+export const loyaltyPointsCheck = (orderInfo: IOrderInfo['orderInfo']) => {
+  const numberArray = orderInfo.map((o) => LOYALTY_POINTS[o.type] * o.quantity);
   return numberArray.reduce((total, actual) => total + actual, 0);
 };
 
