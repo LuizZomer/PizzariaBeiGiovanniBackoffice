@@ -47,14 +47,10 @@ export class OrderGateway {
     const token = client.handshake.headers['authorization']?.split(' ')[1];
 
     if (token && token !== 'null') {
-      const isValid = this.authService.checkCustomerToken(token);
+      const customer = this.authService.checkCustomerToken(token);
 
-      if (isValid) {
-        const customer = this.authService.checkCustomerToken(token);
-
-        order.customerName = customer.name;
-        order.customerId = customer.id;
-      }
+      order.customerName = customer.name;
+      order.customerId = customer.id;
     }
 
     try {
