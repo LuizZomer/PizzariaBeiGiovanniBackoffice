@@ -39,7 +39,7 @@ export class OrderService {
     });
 
     await this.revenueService.createRevenueAccount({
-      date: new Date(),
+      date: new Date().toISOString(),
       value,
       orderId: newOrder.id,
       customerName: order.customerName,

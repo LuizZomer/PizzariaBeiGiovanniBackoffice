@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Customer, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { loginUserDTO } from './dto/login-user.dto copy';
+import { loginUserDTO } from './dto/login-user.dto';
 import { loginCustomerDTO } from './dto/login-customer';
 import { customerRegisterDTO } from './dto/customer-register.dto';
 import { messageGenerator } from 'src/utils/function';

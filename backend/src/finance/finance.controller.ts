@@ -16,8 +16,8 @@ import { AuthGuard } from 'src/guards/authUser.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
-import { CreateFinanceDTO } from './dto/create-payable-account.dto copy';
-import { UpdateFinanceDTO } from './dto/update-payable-account.dto copy 2';
+import { CreateFinanceDTO } from './dto/create-payable-account.dto';
+import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
 
 @Roles(Role.ADMIN, Role.FINANCIAL)
 @UseGuards(AuthGuard, RoleGuard)

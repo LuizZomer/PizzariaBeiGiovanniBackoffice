@@ -6,8 +6,8 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageGenerator } from 'src/utils/function';
 import { IFindAllParam } from 'src/utils/types';
-import { CreateFinanceDTO } from './dto/create-payable-account.dto copy';
-import { UpdateFinanceDTO } from './dto/update-payable-account.dto copy 2';
+import { CreateFinanceDTO } from './dto/create-payable-account.dto';
+import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
 import { Finance } from '@prisma/client';
 
 interface IUpdateStatus {
