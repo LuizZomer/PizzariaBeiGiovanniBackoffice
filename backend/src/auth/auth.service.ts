@@ -14,6 +14,9 @@ import { loginCustomerDTO } from './dto/login-customer';
 import { customerRegisterDTO } from './dto/customer-register.dto';
 import { hashPassword, messageGenerator } from 'src/utils/function';
 
+const USER_TOKEN_TTL = '1 days';
+const CUSTOMER_TOKEN_TTL = '3 days';
+
 @Injectable()
 export class AuthService {
   private user = {
@@ -39,7 +42,7 @@ export class AuthService {
           username: user.username,
         },
         {
-          expiresIn: '1 days',
+          expiresIn: USER_TOKEN_TTL,
           subject: String(user.id),
           issuer: this.user.issuer,
           audience: this.user.audience,
@@ -109,7 +112,7 @@ export class AuthService {
           name: customer.fullName,
         },
         {
-          expiresIn: '3 days',
+          expiresIn: CUSTOMER_TOKEN_TTL,
           subject: String(customer.id),
           issuer: this.customer.issuer,
           audience: this.customer.audience,
@@ -148,13 +151,15 @@ export class AuthService {
       },
     });
 
-    if (!customer) throw new NotFoundException('E-mail e/ou senha incorretos!');
+    if (!customer) throw new NotFoundException('E-Mail und/oder Passwort falsch!');
 
     if (!customer.status)
-      throw new ForbiddenException('Acesso negado ao sistema!');
+      throw new ForbiddenException(
+        'Keine Berechtigung zum Zugriff auf das System!',
+      );
 
     if (!(await bcrypt.compare(password, customer.password)))
-      throw new UnauthorizedException('E-mail e/ou senha incorretos!');
+      throw new UnauthorizedException('E-Mail und/oder Passwort falsch!');
 
     return this.createCustomerToken(customer);
   }
