@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -19,6 +18,7 @@ import { Role } from 'src/enums/role.enum';
 import { CreateFinanceDTO } from './dto/create-payable-account.dto';
 import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
 import { IUserReq } from 'src/utils/types';
+import { FindFinanceQueryDto } from './dto/find-finance-query.dto';
 
 @Roles(Role.ADMIN, Role.FINANCIAL)
 @UseGuards(AuthGuard, RoleGuard)
@@ -27,22 +27,8 @@ export class FinanceController {
   constructor(private readonly financesService: FinanceService) {}
 
   @Get()
-  async findAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('take', ParseIntPipe) take: number,
-    @Query('status') status: string,
-    @Query('type') type: string,
-    @Query('finalDate') finalDate: string,
-    @Query('initialDate') initialDate: string,
-  ) {
-    return this.financesService.findAllFinance({
-      page,
-      take,
-      status,
-      type,
-      finalDate,
-      initialDate,
-    });
+  async findAll(@Query() query: FindFinanceQueryDto) {
+    return this.financesService.findAllFinance(query);
   }
 
   @Get('income')

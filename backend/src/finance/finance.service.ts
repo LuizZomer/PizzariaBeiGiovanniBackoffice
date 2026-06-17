@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageGenerator, paginate } from 'src/utils/function';
-import { IFindAllParam } from 'src/utils/types';
 import { CreateFinanceDTO } from './dto/create-payable-account.dto';
 import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
 import { Finance } from '@prisma/client';
@@ -15,11 +14,13 @@ interface IUpdateStatus {
   revenueId: string;
 }
 
-interface IFindFinanceParam extends IFindAllParam {
-  status: string;
-  type: string;
-  initialDate: string;
-  finalDate: string;
+export interface IFindFinanceParam {
+  page: number;
+  take: number;
+  status?: string;
+  type?: string;
+  initialDate?: string;
+  finalDate?: string;
 }
 
 @Injectable()
@@ -161,8 +162,8 @@ export class FinanceService {
     finalDate,
     initialDate,
   }: {
-    initialDate: string;
-    finalDate: string;
+    initialDate?: string;
+    finalDate?: string;
   }) {
     const { start: todayStart, end: todayEnd } = this.getTodayRange();
 
