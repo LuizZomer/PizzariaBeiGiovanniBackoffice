@@ -18,6 +18,7 @@ import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { CreateFinanceDTO } from './dto/create-payable-account.dto';
 import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
+import { IUserReq } from 'src/utils/types';
 
 @Roles(Role.ADMIN, Role.FINANCIAL)
 @UseGuards(AuthGuard, RoleGuard)
@@ -53,24 +54,20 @@ export class FinanceController {
   }
 
   @Post()
-  async create(@Req() req: any, @Body() finance: CreateFinanceDTO) {
-    const userId = req.user.id;
-
-    return this.financesService.createFinance(finance, userId);
+  async create(@Req() req: IUserReq, @Body() finance: CreateFinanceDTO) {
+    return this.financesService.createFinance(finance, req.user.id);
   }
 
   @Patch(':financeId')
   async update(
     @Param('financeId') financeId: string,
-    @Req() req: any,
+    @Req() req: IUserReq,
     @Body() finance: UpdateFinanceDTO,
   ) {
-    const userId = req.user.id;
-
     return this.financesService.updateFinance({
       finance,
       id: financeId,
-      userId,
+      userId: req.user.id,
     });
   }
 
