@@ -3,7 +3,7 @@ import { ContactType } from 'src/enums/contactType.enum';
 
 export class CreateContactDto {
   @IsEnum(ContactType)
-  type: string;
+  type: ContactType;
 
   @IsString()
   value: string;
