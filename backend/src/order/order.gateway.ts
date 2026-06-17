@@ -16,10 +16,16 @@ export interface IOrderList {
   revenue?: 'true' | 'false';
 }
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : process.env.NODE_ENV === 'development'
+    ? '*'
+    : [];
+
 @WebSocketGateway({
   namespace: 'order',
   cors: {
-    origin: '*',
+    origin: allowedOrigins,
   },
 })
 export class OrderGateway {
