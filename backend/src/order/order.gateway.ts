@@ -5,9 +5,9 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { CreateOrderDTO } from './dto/create-order.dto';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -29,6 +29,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   },
 })
 export class OrderGateway {
+  private readonly logger = new Logger(OrderGateway.name);
+
   constructor(
     private readonly orderService: OrderService,
     private readonly authService: AuthService,
@@ -60,7 +62,9 @@ export class OrderGateway {
       this.server.emit('newOrderList');
       client.emit('newOrderResponse', { success: true });
     } catch (e) {
-      client.emit('newOrderResponse', { success: false, message: e });
+      const message = e instanceof Error ? e.message : 'Erro interno ao criar pedido';
+      this.logger.error('Falha ao criar pedido via WebSocket', e instanceof Error ? e.stack : e);
+      client.emit('newOrderResponse', { success: false, message });
     }
   }
 }
