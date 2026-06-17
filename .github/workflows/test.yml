@@ -10,9 +10,11 @@ jobs:
   backend:
     name: Backend (Jest)
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: backend
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,47 +27,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage
+        run: npm test -- --coverage
 
-  backoffice:
-    name: Backoffice (Vitest)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backoffice
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: backoffice/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-  customer:
-    name: Customer (Vitest)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: customer
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: customer/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
+          name: coverage-report
+          path: backend/coverage

@@ -6,32 +6,8 @@ Sistema completo de **gestão de pizzaria**, dividido em três partes:
 
 O sistema é composto por três aplicações integradas:
 
-### 1. Backoffice (Frontend React)
 
-Painel administrativo responsável pelo gerenciamento da operação da pizzaria.
-
-Funcionalidades:
-
-* Gerenciamento de clientes
-* Gerenciamento de pedidos
-* Controle financeiro
-* Gestão de funcionários
-* Gestão de itens do cardápio
-* Recebimento de pedidos em tempo real via Socket.io
-
-### 2. Cliente (Frontend React)
-
-Landing page institucional e área do cliente.
-
-Funcionalidades:
-
-* Cadastro e autenticação
-* Histórico de pedidos
-* Sistema de pontuação/fidelidade
-* Carrinho de compras
-* Realização de pedidos online
-
-### 3. Backend (NestJS + Prisma)
+### 1. Backend (NestJS + Prisma)
 
 API responsável por toda a lógica de negócio da aplicação.
 
@@ -43,6 +19,8 @@ Funcionalidades:
 * Comunicação em tempo real com Socket.io
 * Persistência de dados com Prisma ORM
 
+
+Os modulos de Backoffice (Frontend Reacto) Cliente (Frontend React) não foram analisados no projeto de clean code
 ---
 
 ## ⚙️ Tecnologias Utilizadas
@@ -80,8 +58,6 @@ Funcionalidades:
 
 | Diretório             | Descrição                      |
 | --------------------- | ------------------------------ |
-| `backoffice-frontend` | Painel administrativo          |
-| `client-frontend`     | Landing page e área do cliente |
 | `backend`             | API NestJS                     |
 | `.github/workflows`   | Pipeline CI/CD                 |
 
@@ -102,29 +78,6 @@ Disponível em:
 ```text
 http://localhost:3000
 ```
-
-### Frontend - Backoffice
-
-```bash
-cd backoffice-frontend
-npm install
-npm run dev
-```
-
-### Frontend - Cliente
-
-```bash
-cd client-frontend
-npm install
-npm run dev
-```
-
-Disponível em:
-
-```text
-http://localhost:5173
-```
-
 ---
 
 ## 📚 Funcionalidades Principais
@@ -151,26 +104,6 @@ http://localhost:5173
 
 ---
 
-### Área do Cliente
-
-* Consulta de histórico de pedidos
-* Consulta de pontuação acumulada
-* Carrinho de compras
-* Realização de pedidos
-* Programa de fidelidade
-
----
-
-### Backoffice
-
-* Gerenciamento de clientes
-* Gerenciamento de pedidos
-* Gerenciamento financeiro
-* Gerenciamento de funcionários
-* Gerenciamento de cardápio
-* Monitoramento em tempo real
-
----
 
 # 🧪 Testes Automatizados
 
@@ -292,8 +225,6 @@ Disparado automaticamente em:
 | Job        | Objetivo               |
 | ---------- | ---------------------- |
 | Backend    | Executar testes Jest   |
-| Backoffice | Executar testes Vitest |
-| Customer   | Executar testes Vitest |
 
 Os três jobs são executados em paralelo para reduzir o tempo de validação.
 
@@ -301,16 +232,14 @@ Os três jobs são executados em paralelo para reduzir o tempo de validação.
 
 # 📊 Resultado Final
 
-| Aplicação  | Quantidade de Testes | Status           |
-| ---------- | -------------------- | ---------------- |
-| Backend    | 25                   | ✅ Todos passando |
-| Backoffice | 5                    | ✅ Todos passando |
-| Customer   | 11                   | ✅ Todos passando |
+| Aplicação  | Quantidade de Testes | COVERAGE | Status           |
+| ---------- | -------------------- |-------------| ---------------- |
+| Backend    | 25                   || ✅ Todos passando |
 
 ### Total
 
 ```text
-41 testes automatizados executados com sucesso.
+25 testes automatizados executados com sucesso.
 ```
 
 Todos os módulos do sistema possuem validações automatizadas integradas ao pipeline de CI, garantindo maior confiabilidade e facilitando futuras manutenções e evoluções do projeto.
