@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { RevenueService } from './revenue.service';
 
 describe('RevenueService', () => {
@@ -13,9 +13,6 @@ describe('RevenueService', () => {
         findUnique: jest.fn(),
         update: jest.fn(),
       },
-      customer: {
-        findUnique: jest.fn(),
-      },
     };
 
     financeService = {
@@ -23,6 +20,7 @@ describe('RevenueService', () => {
     };
 
     customerService = {
+      findOne: jest.fn(),
       incrementLoyaltyPoints: jest.fn(),
     };
 
@@ -40,17 +38,18 @@ describe('RevenueService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('should throw BadRequestException when the associated customer does not exist', async () => {
+  it('should skip loyalty points when the customer is not found', async () => {
     prisma.revenue.findUnique.mockResolvedValue({ status: false });
     prisma.revenue.update.mockResolvedValue({});
     financeService.updateStatusWithRevenue.mockResolvedValue({});
-    prisma.customer.findUnique.mockResolvedValue(null);
+    customerService.findOne.mockResolvedValue(null);
 
-    await expect(
-      revenueService.payRevenue({
-        revenueId: 'existing-id',
-        orderInfo: { customerId: 'missing-customer', orderInfo: [] },
-      }),
-    ).rejects.toThrow(BadRequestException);
+    const result = await revenueService.payRevenue({
+      revenueId: 'existing-id',
+      orderInfo: { customerId: 'missing-customer', orderInfo: [] },
+    });
+
+    expect(result).toEqual({ message: expect.any(String) });
+    expect(customerService.incrementLoyaltyPoints).not.toHaveBeenCalled();
   });
 });
