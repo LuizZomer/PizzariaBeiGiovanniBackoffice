@@ -170,6 +170,6 @@ export class UserService {
 
     if (user) return user;
 
-    throw new NotFoundException('Id não existente');
+    throw new NotFoundException('Id nicht gefunden!');
   }
 }

@@ -148,16 +148,13 @@ export class AuthService {
       },
     });
 
-    if (!customer)
-      throw new NotFoundException('E-Mail und/oder Passwort falsch!');
+    if (!customer) throw new NotFoundException('E-mail e/ou senha incorretos!');
 
     if (!customer.status)
-      throw new ForbiddenException(
-        'Keine Berechtigung zum Zugriff auf das System!',
-      );
+      throw new ForbiddenException('Acesso negado ao sistema!');
 
     if (!(await bcrypt.compare(password, customer.password)))
-      throw new UnauthorizedException('E-Mail und/oder Passwort falsch!');
+      throw new UnauthorizedException('E-mail e/ou senha incorretos!');
 
     return this.createCustomerToken(customer);
   }

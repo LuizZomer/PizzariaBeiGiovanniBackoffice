@@ -42,7 +42,6 @@ export class RevenueService {
     });
 
     const overDueDate = new Date();
-
     overDueDate.setDate(overDueDate.getDate() + 1);
 
     await this.financeServices.createFinance({
@@ -71,19 +70,14 @@ export class RevenueService {
       select: { status: true },
     });
 
-    if (!currentRevenueStatus) {
-      throw new NotFoundException('Receita não encontrada');
-    }
+    if (!currentRevenueStatus)
+      throw new NotFoundException('Einnahme nicht gefunden!');
 
     const nextStatus = !currentRevenueStatus.status;
 
     await this.prisma.revenue.update({
-      data: {
-        status: nextStatus,
-      },
-      where: {
-        id: revenueId,
-      },
+      data: { status: nextStatus },
+      where: { id: revenueId },
     });
 
     await this.financeServices.updateStatusWithRevenue({
@@ -93,16 +87,12 @@ export class RevenueService {
 
     if (orderInfo.customerId) {
       const customer = await this.prisma.customer.findUnique({
-        where: {
-          id: orderInfo.customerId,
-        },
-        select: {
-          status: true,
-        },
+        where: { id: orderInfo.customerId },
+        select: { status: true },
       });
 
       if (!customer) {
-        throw new BadRequestException('Cliente associado não encontrado');
+        throw new BadRequestException('Zugehöriger Kunde nicht gefunden!');
       }
 
       if (customer.status) {
@@ -119,11 +109,7 @@ export class RevenueService {
   async delete(id: string) {
     await this.exist(id);
 
-    await this.prisma.revenue.delete({
-      where: {
-        id,
-      },
-    });
+    await this.prisma.revenue.delete({ where: { id } });
 
     return messageGenerator('delete');
   }
@@ -133,14 +119,10 @@ export class RevenueService {
   }
 
   async exist(id: string) {
-    const revenue = await this.prisma.revenue.count({
-      where: { id },
-    });
+    const revenue = await this.prisma.revenue.count({ where: { id } });
 
-    if (revenue) {
-      return revenue;
-    }
+    if (revenue) return revenue;
 
-    throw new NotFoundException('Id de pagamento não encontrado!');
+    throw new NotFoundException('Zahlungs-Id nicht gefunden!');
   }
 }

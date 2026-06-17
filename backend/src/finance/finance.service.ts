@@ -224,6 +224,6 @@ export class FinanceService {
       return receivable;
     }
 
-    throw new NotFoundException('Id de conta não encontrado!');
+    throw new NotFoundException('Konto-Id nicht gefunden!');
   }
 }

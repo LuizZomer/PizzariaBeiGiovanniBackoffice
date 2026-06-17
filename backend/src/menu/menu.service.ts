@@ -101,9 +101,7 @@ export class MenuService {
       },
     });
 
-    if (!menuStatus) {
-      throw new NotFoundException('Item de menu não encontrado');
-    }
+    if (!menuStatus) throw new NotFoundException('Menüpunkt nicht gefunden!');
 
     await this.prisma.menu.update({
       data: {
@@ -128,6 +126,6 @@ export class MenuService {
       return true;
     }
 
-    throw new NotFoundException('Id não existente');
+    throw new NotFoundException('Id nicht gefunden!');
   }
 }

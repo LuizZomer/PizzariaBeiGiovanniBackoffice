@@ -183,9 +183,7 @@ export class CustomerService {
       where: { id },
     });
 
-    if (!customerStatus) {
-      throw new NotFoundException('Cliente não encontrado');
-    }
+    if (!customerStatus) throw new NotFoundException('Kunde nicht gefunden!');
 
     await this.prisma.customer.update({
       data: { status: !customerStatus.status },
@@ -210,6 +208,6 @@ export class CustomerService {
 
     if (customer) return true;
 
-    throw new NotFoundException('Id não existente');
+    throw new NotFoundException('Id nicht gefunden!');
   }
 }
