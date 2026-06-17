@@ -5,11 +5,11 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Logger, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { CreateOrderDTO } from './dto/create-order.dto';
 import { OrderService } from './order.service';
-import { AuthService } from 'src/auth/auth.service';
+import { WsAuthCustomerGuard } from 'src/guards/wsAuthCustomer.guard';
 
 export interface IOrderList {
   sequence?: 'asc' | 'desc';
@@ -31,24 +31,20 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 export class OrderGateway {
   private readonly logger = new Logger(OrderGateway.name);
 
-  constructor(
-    private readonly orderService: OrderService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly orderService: OrderService) {}
 
   @WebSocketServer() server: Server;
 
+  @UseGuards(WsAuthCustomerGuard)
   @SubscribeMessage('newOrder')
   @UsePipes(new ValidationPipe({ transform: true }))
   async handleNewOrder(
     @MessageBody() order: CreateOrderDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const token = client.handshake.headers['authorization']?.split(' ')[1];
+    const customer = client.data.customer;
 
-    if (token && token !== 'null') {
-      const customer = this.authService.checkCustomerToken(token);
-
+    if (customer) {
       order.customerName = customer.name;
       order.customerId = customer.id;
     }
