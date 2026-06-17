@@ -26,6 +26,17 @@ interface IFindFinanceParam extends IFindAllParam {
 export class FinanceService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async markOverdueFinances() {
+    const now = new Date();
+    await this.prisma.finance.updateMany({
+      data: { status: true },
+      where: {
+        status: false,
+        dueDate: { lt: now },
+      },
+    });
+  }
+
   async findAllFinance({
     page,
     take,
@@ -93,21 +104,6 @@ export class FinanceService {
         },
       },
     });
-
-    await Promise.all(
-      finances.map(async (finance) => {
-        if (!finance.status && finance.dueDate < new Date()) {
-          await this.prisma.finance.update({
-            data: {
-              status: true,
-            },
-            where: {
-              id: finance.id,
-            },
-          });
-        }
-      }),
-    );
 
     return { finances, financesCount: count };
   }
