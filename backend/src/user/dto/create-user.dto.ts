@@ -33,7 +33,7 @@ export class CreateUserDto {
   idnr: string;
 
   @IsEnum(Role)
-  role: string;
+  role: Role;
 
   @IsBoolean()
   status: boolean;

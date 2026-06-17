@@ -12,10 +12,10 @@ export class CreateMenuDto {
   value: number;
 
   @IsEnum(EnumTypeMenuItem)
-  type: string;
+  type: EnumTypeMenuItem;
 
   @IsEnum(EnumSizeMenuItem)
-  size: string;
+  size: EnumSizeMenuItem;
 
   @IsBoolean()
   status: boolean;

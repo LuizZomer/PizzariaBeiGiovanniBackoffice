@@ -21,7 +21,7 @@ export class CreateFinanceDTO {
   status: boolean;
 
   @IsEnum(FinanceType)
-  type: string;
+  type: FinanceType;
 
   @IsOptional()
   revenueId: string;
