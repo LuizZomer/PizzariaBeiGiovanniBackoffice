@@ -11,7 +11,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { AuthGuard } from 'src/guards/authUser.guard';
@@ -19,10 +18,7 @@ import { RoleGuard } from 'src/guards/role.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-
-interface IReq {
-  user: User;
-}
+import { IUserReq } from 'src/utils/types';
 
 @Roles(Role.ADMIN)
 @UseGuards(AuthGuard, RoleGuard)
@@ -56,7 +52,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: IReq) {
+  remove(@Param('id') id: string, @Req() req: IUserReq) {
     const user = req.user;
 
     return this.userService.remove(id, user.id);

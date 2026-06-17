@@ -18,11 +18,7 @@ import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { UpdateCustomerInfoDTO } from './dto/update-customer-info.dto';
-import { Customer } from '@prisma/client';
-
-interface IReq {
-  customer: Customer;
-}
+import { ICustomerReq } from 'src/utils/types';
 
 @Controller('customer')
 export class CustomerController {
@@ -47,7 +43,7 @@ export class CustomerController {
 
   @UseGuards(AuthCustomerGuard)
   @Get('info')
-  findOne(@Req() req: IReq) {
+  findOne(@Req() req: ICustomerReq) {
     const customerId = req.customer.id;
     return this.customerService.findOne(customerId);
   }
@@ -66,7 +62,7 @@ export class CustomerController {
 
   @UseGuards(AuthCustomerGuard)
   @Patch('info')
-  emailAndPassword(@Req() req: IReq, @Body() payload: UpdateCustomerInfoDTO) {
+  emailAndPassword(@Req() req: ICustomerReq, @Body() payload: UpdateCustomerInfoDTO) {
     const customerId = req.customer.id;
     return this.customerService.updateCustomerInfo(customerId, payload);
   }

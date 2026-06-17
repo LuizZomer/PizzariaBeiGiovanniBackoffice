@@ -1,3 +1,5 @@
+import { User, Customer } from '@prisma/client';
+
 export interface IFindAllParam {
   page: number;
   take: number;
@@ -5,3 +7,11 @@ export interface IFindAllParam {
 }
 
 export type TTypeCheck = 'pizza' | 'noodle' | 'salad' | 'drink';
+
+export interface IUserReq {
+  user: User;
+}
+
+export interface ICustomerReq {
+  customer: Customer;
+}
