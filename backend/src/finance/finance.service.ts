@@ -26,6 +26,14 @@ interface IFindFinanceParam extends IFindAllParam {
 export class FinanceService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private getTodayRange(): { start: Date; end: Date } {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
   async markOverdueFinances() {
     const now = new Date();
     await this.prisma.finance.updateMany({
@@ -45,10 +53,7 @@ export class FinanceService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const { start: todayStart, end: todayEnd } = this.getTodayRange();
 
     const finalDateEndOfDay = finalDate ? new Date(finalDate) : todayEnd;
     if (finalDate) {
@@ -159,11 +164,7 @@ export class FinanceService {
     initialDate: string;
     finalDate: string;
   }) {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const { start: todayStart, end: todayEnd } = this.getTodayRange();
 
     const finalDateEndOfDay = finalDate ? new Date(finalDate) : todayEnd;
 
