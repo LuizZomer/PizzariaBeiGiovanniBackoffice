@@ -8,12 +8,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
 import { hashPassword, messageGenerator, paginate } from 'src/utils/function';
+import { Role } from 'src/enums/role.enum';
 
 interface IFindAllUser extends IFindAllParam {
   role: string;
 }
-
-type TRole = 'admin' | 'employee' | 'financial';
 
 @Injectable()
 export class UserService {
@@ -139,7 +138,7 @@ export class UserService {
   async remove(id: string, userId: string) {
     const forDeleteUser = await this.exist(id);
 
-    if (forDeleteUser.role === 'admin') await this.roleUser('admin');
+    if (forDeleteUser.role === 'admin') await this.roleUser(Role.ADMIN);
 
     if (forDeleteUser.id === userId)
       throw new BadRequestException(
@@ -151,7 +150,7 @@ export class UserService {
     return messageGenerator('delete');
   }
 
-  async roleUser(role: TRole) {
+  async roleUser(role: Role) {
     const user = await this.prisma.user.count({ where: { role } });
 
     if (user === 1)
