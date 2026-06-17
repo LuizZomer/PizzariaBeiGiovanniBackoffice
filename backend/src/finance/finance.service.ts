@@ -55,37 +55,35 @@ export class FinanceService {
       finalDateEndOfDay.setDate(finalDateEndOfDay.getDate() + 1);
     }
 
-    const { data: finances, totalPages: financesCount } =
-      await paginate<Finance>(this.prisma.finance, {
-        where: {
-          status:
-            status === 'true' ? true : status === 'false' ? false : undefined,
-          type: type || undefined,
-          createdAt: {
-            gte: initialDate ? new Date(initialDate) : todayStart,
-            lte: finalDateEndOfDay,
-          },
-        },
+    const where = {
+      status: status === 'true' ? true : status === 'false' ? false : undefined,
+      type: type || undefined,
+      createdAt: {
+        gte: initialDate ? new Date(initialDate) : todayStart,
+        lte: finalDateEndOfDay,
+      },
+    };
+
+    const select = {
+      createdAt: true,
+      description: true,
+      dueDate: true,
+      id: true,
+      Revenue: false,
+      revenueId: false,
+      status: true,
+      type: true,
+      value: true,
+      userId: false,
+      User: {
         select: {
-          createdAt: true,
-          description: true,
-          dueDate: true,
-          id: true,
-          Revenue: false,
-          revenueId: false,
-          status: true,
-          type: true,
-          value: true,
-          userId: false,
-          User: {
-            select: {
-              fullName: true,
-            },
-          },
+          fullName: true,
         },
-        page,
-        take,
-      });
+      },
+    };
+
+    const { data: finances, totalPages: financesCount } =
+      await paginate<Finance>(this.prisma.finance, { where, select, page, take });
 
     return { finances, financesCount };
   }

@@ -59,32 +59,31 @@ export class UserService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
+    const where = {
+      fullName: { contains: search || undefined },
+      role: { equals: role || undefined },
+    };
+
+    const select = {
+      Finance: false,
+      fullName: true,
+      id: true,
+      createdAt: true,
+      function: true,
+      idnr: true,
+      lastAccess: true,
+      password: false,
+      Revenue: false,
+      role: true,
+      status: true,
+      updateAt: false,
+      username: true,
+      workload: true,
+    };
+
     const { data: users, totalPages: usersCount } = await paginate(
       this.prisma.user,
-      {
-        where: {
-          fullName: { contains: search || undefined },
-          role: { equals: role || undefined },
-        },
-        select: {
-          Finance: false,
-          fullName: true,
-          id: true,
-          createdAt: true,
-          function: true,
-          idnr: true,
-          lastAccess: true,
-          password: false,
-          Revenue: false,
-          role: true,
-          status: true,
-          updateAt: false,
-          username: true,
-          workload: true,
-        },
-        page,
-        take,
-      },
+      { where, select, page, take },
     );
 
     return { users, usersCount };

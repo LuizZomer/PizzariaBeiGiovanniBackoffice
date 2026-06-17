@@ -32,28 +32,27 @@ export class MenuService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
+    const where = {
+      name: { contains: search || undefined },
+      size: { equals: size || undefined },
+      type: { equals: type || undefined },
+      status: status ? status === 'true' : undefined,
+    };
+
+    const select = {
+      id: true,
+      description: true,
+      name: true,
+      OrderItems: false,
+      size: true,
+      type: true,
+      value: true,
+      status: true,
+    };
+
     const { data: menuItens, totalPages: itensCount } = await paginate(
       this.prisma.menu,
-      {
-        where: {
-          name: { contains: search || undefined },
-          size: { equals: size || undefined },
-          type: { equals: type || undefined },
-          status: status ? status === 'true' : undefined,
-        },
-        select: {
-          id: true,
-          description: true,
-          name: true,
-          OrderItems: false,
-          size: true,
-          type: true,
-          value: true,
-          status: true,
-        },
-        page,
-        take,
-      },
+      { where, select, page, take },
     );
 
     return { menuItens, itensCount };

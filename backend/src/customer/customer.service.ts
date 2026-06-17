@@ -52,31 +52,30 @@ export class CustomerService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
+    const where = {
+      fullName: { contains: search || undefined },
+      status: { equals: status ? status === 'true' : undefined },
+    };
+
+    const select = {
+      Contact: false,
+      createdAt: true,
+      email: true,
+      fullName: true,
+      id: true,
+      idnr: true,
+      loyalty_points: true,
+      Order: false,
+      OrderLog: false,
+      password: false,
+      Revenue: false,
+      status: true,
+      updateAt: false,
+    };
+
     const { data: customers, totalPages: customersCount } = await paginate(
       this.prisma.customer,
-      {
-        where: {
-          fullName: { contains: search || undefined },
-          status: { equals: status ? status === 'true' : undefined },
-        },
-        select: {
-          Contact: false,
-          createdAt: true,
-          email: true,
-          fullName: true,
-          id: true,
-          idnr: true,
-          loyalty_points: true,
-          Order: false,
-          OrderLog: false,
-          password: false,
-          Revenue: false,
-          status: true,
-          updateAt: false,
-        },
-        page,
-        take,
-      },
+      { where, select, page, take },
     );
 
     return { customers, customersCount };
