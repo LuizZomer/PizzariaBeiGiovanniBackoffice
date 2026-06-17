@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
-import { messageGenerator } from 'src/utils/function';
+import { messageGenerator, paginate } from 'src/utils/function';
 
 interface IFindAllUser extends IFindAllParam {
   role: string;
@@ -59,49 +59,35 @@ export class UserService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
-    const userTableCount = await this.prisma.user.count({
-      where: {
-        fullName: {
-          contains: search || undefined,
+    const { data: users, totalPages: usersCount } = await paginate(
+      this.prisma.user,
+      {
+        where: {
+          fullName: { contains: search || undefined },
+          role: { equals: role || undefined },
         },
-        role: {
-          equals: role || undefined,
+        select: {
+          Finance: false,
+          fullName: true,
+          id: true,
+          createdAt: true,
+          function: true,
+          idnr: true,
+          lastAccess: true,
+          password: false,
+          Revenue: false,
+          role: true,
+          status: true,
+          updateAt: false,
+          username: true,
+          workload: true,
         },
+        page,
+        take,
       },
-    });
+    );
 
-    const count = Math.ceil(userTableCount / take);
-
-    const users = await this.prisma.user.findMany({
-      select: {
-        Finance: false,
-        fullName: true,
-        id: true,
-        createdAt: true,
-        function: true,
-        idnr: true,
-        lastAccess: true,
-        password: false,
-        Revenue: false,
-        role: true,
-        status: true,
-        updateAt: false,
-        username: true,
-        workload: true,
-      },
-      take,
-      skip: (page - 1) * take,
-      where: {
-        fullName: {
-          contains: search || undefined,
-        },
-        role: {
-          equals: role || undefined,
-        },
-      },
-    });
-
-    return { users, usersCount: count };
+    return { users, usersCount };
   }
 
   async findOne(id: string) {

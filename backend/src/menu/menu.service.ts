@@ -7,7 +7,7 @@ import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
-import { messageGenerator } from 'src/utils/function';
+import { messageGenerator, paginate } from 'src/utils/function';
 
 interface IMenuParam extends IFindAllParam {
   search: string;
@@ -32,51 +32,31 @@ export class MenuService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
-    const menuCount = await this.prisma.menu.count({
-      where: {
-        name: {
-          contains: search || undefined,
+    const { data: menuItens, totalPages: itensCount } = await paginate(
+      this.prisma.menu,
+      {
+        where: {
+          name: { contains: search || undefined },
+          size: { equals: size || undefined },
+          type: { equals: type || undefined },
+          status: status ? status === 'true' : undefined,
         },
-        size: {
-          equals: size || undefined,
+        select: {
+          id: true,
+          description: true,
+          name: true,
+          OrderItems: false,
+          size: true,
+          type: true,
+          value: true,
+          status: true,
         },
-        type: {
-          equals: type || undefined,
-        },
-        status: status ? status === 'true' : undefined,
+        page,
+        take,
       },
-    });
+    );
 
-    const count = Math.ceil(menuCount / take);
-
-    const menuItens = await this.prisma.menu.findMany({
-      select: {
-        id: true,
-        description: true,
-        name: true,
-        OrderItems: false,
-        size: true,
-        type: true,
-        value: true,
-        status: true,
-      },
-      skip: (page - 1) * take,
-      take,
-      where: {
-        name: {
-          contains: search || undefined,
-        },
-        size: {
-          equals: size || undefined,
-        },
-        type: {
-          equals: type || undefined,
-        },
-        status: status ? status === 'true' : undefined,
-      },
-    });
-
-    return { menuItens, itensCount: count };
+    return { menuItens, itensCount };
   }
 
   async findOne(id: string) {

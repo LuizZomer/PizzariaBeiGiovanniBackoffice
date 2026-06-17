@@ -8,7 +8,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
-import { messageGenerator } from 'src/utils/function';
+import { messageGenerator, paginate } from 'src/utils/function';
 import { UpdateCustomerInfoDTO } from './dto/update-customer-info.dto';
 
 interface ICustomerParam extends IFindAllParam {
@@ -52,48 +52,34 @@ export class CustomerService {
     if (page < 1)
       throw new BadRequestException('Seite muss größer als Null sein');
 
-    const customerTableCount = await this.prisma.customer.count({
-      where: {
-        fullName: {
-          contains: search || undefined,
+    const { data: customers, totalPages: customersCount } = await paginate(
+      this.prisma.customer,
+      {
+        where: {
+          fullName: { contains: search || undefined },
+          status: { equals: status ? status === 'true' : undefined },
         },
-        status: {
-          equals: status ? status === 'true' : undefined,
+        select: {
+          Contact: false,
+          createdAt: true,
+          email: true,
+          fullName: true,
+          id: true,
+          idnr: true,
+          loyalty_points: true,
+          Order: false,
+          OrderLog: false,
+          password: false,
+          Revenue: false,
+          status: true,
+          updateAt: false,
         },
+        page,
+        take,
       },
-    });
+    );
 
-    const count = Math.ceil(customerTableCount / take);
-
-    const customers = await this.prisma.customer.findMany({
-      select: {
-        Contact: false,
-        createdAt: true,
-        email: true,
-        fullName: true,
-        id: true,
-        idnr: true,
-        loyalty_points: true,
-        Order: false,
-        OrderLog: false,
-        password: false,
-        Revenue: false,
-        status: true,
-        updateAt: false,
-      },
-      take,
-      skip: (page - 1) * take,
-      where: {
-        fullName: {
-          contains: search || undefined,
-        },
-        status: {
-          equals: status ? status === 'true' : undefined,
-        },
-      },
-    });
-
-    return { customers, customersCount: count };
+    return { customers, customersCount };
   }
 
   async findOne(id: string) {
@@ -155,7 +141,6 @@ export class CustomerService {
     }: UpdateCustomerDto,
   ) {
     await this.exist(id);
-    // await this.existEmail(email);
 
     const customer: UpdateCustomerDto = {
       email,

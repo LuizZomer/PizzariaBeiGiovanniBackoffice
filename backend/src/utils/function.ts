@@ -29,3 +29,24 @@ export const loyaltyPointsCheck = (orderInfo: IOrderInfo['orderInfo']) => {
 
   return numberArray.reduce((total, actual) => total + actual, 0);
 };
+
+interface PaginatableModel {
+  count: (args?: any) => Promise<number>;
+  findMany: (args?: any) => Promise<any[]>;
+}
+
+export async function paginate<T>(
+  model: PaginatableModel,
+  options: { where: any; select?: any; page: number; take: number },
+): Promise<{ data: T[]; totalPages: number }> {
+  const [total, data] = await Promise.all([
+    model.count({ where: options.where }),
+    model.findMany({
+      where: options.where,
+      ...(options.select !== undefined ? { select: options.select } : {}),
+      take: options.take,
+      skip: (options.page - 1) * options.take,
+    }),
+  ]);
+  return { data, totalPages: Math.ceil(total / options.take) };
+}

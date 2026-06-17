@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { messageGenerator } from 'src/utils/function';
+import { messageGenerator, paginate } from 'src/utils/function';
 import { IFindAllParam } from 'src/utils/types';
 import { CreateFinanceDTO } from './dto/create-payable-account.dto';
 import { UpdateFinanceDTO } from './dto/update-payable-account.dto';
@@ -30,10 +30,7 @@ export class FinanceService {
     const now = new Date();
     await this.prisma.finance.updateMany({
       data: { status: true },
-      where: {
-        status: false,
-        dueDate: { lt: now },
-      },
+      where: { status: false, dueDate: { lt: now } },
     });
   }
 
@@ -50,62 +47,47 @@ export class FinanceService {
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
     const finalDateEndOfDay = finalDate ? new Date(finalDate) : todayEnd;
-
     if (finalDate) {
       finalDateEndOfDay.setDate(finalDateEndOfDay.getDate() + 1);
     }
 
-    const financeTableCount = await this.prisma.finance.count({
-      where: {
-        status:
-          status === 'true' ? true : status === 'false' ? false : undefined,
-        type: type || undefined,
-        createdAt: {
-          gte: initialDate ? new Date(initialDate) : todayStart,
-          lte: finalDateEndOfDay,
-        },
-      },
-    });
-
-    const count = Math.ceil(financeTableCount / take);
-
-    const finances = await this.prisma.finance.findMany({
-      select: {
-        createdAt: true,
-        description: true,
-        dueDate: true,
-        id: true,
-        Revenue: false,
-        revenueId: false,
-        status: true,
-        type: true,
-        value: true,
-        userId: false,
-        User: {
-          select: {
-            fullName: true,
+    const { data: finances, totalPages: financesCount } =
+      await paginate<Finance>(this.prisma.finance, {
+        where: {
+          status:
+            status === 'true' ? true : status === 'false' ? false : undefined,
+          type: type || undefined,
+          createdAt: {
+            gte: initialDate ? new Date(initialDate) : todayStart,
+            lte: finalDateEndOfDay,
           },
         },
-      },
-      take,
-      skip: (page - 1) * take,
-      where: {
-        status:
-          status === 'true' ? true : status === 'false' ? false : undefined,
-        type: type || undefined,
-        createdAt: {
-          gte: initialDate ? new Date(initialDate) : todayStart,
-          lte: finalDateEndOfDay,
+        select: {
+          createdAt: true,
+          description: true,
+          dueDate: true,
+          id: true,
+          Revenue: false,
+          revenueId: false,
+          status: true,
+          type: true,
+          value: true,
+          userId: false,
+          User: {
+            select: {
+              fullName: true,
+            },
+          },
         },
-      },
-    });
+        page,
+        take,
+      });
 
-    return { finances, financesCount: count };
+    return { finances, financesCount };
   }
 
   async createFinance(
