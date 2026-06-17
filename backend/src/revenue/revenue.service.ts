@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { loyaltyPointsCheck, messageGenerator } from 'src/utils/function';
 import { CreateRevenueAccountDTO } from './dto/create-revenue.dto';
@@ -73,29 +73,22 @@ export class RevenueService {
     if (!currentRevenueStatus)
       throw new NotFoundException('Einnahme nicht gefunden!');
 
-    const nextStatus = !currentRevenueStatus.status;
+    const newStatus = !currentRevenueStatus.status;
 
     await this.prisma.revenue.update({
-      data: { status: nextStatus },
+      data: { status: newStatus },
       where: { id: revenueId },
     });
 
     await this.financeServices.updateStatusWithRevenue({
       revenueId,
-      status: nextStatus,
+      status: newStatus,
     });
 
     if (orderInfo.customerId) {
-      const customer = await this.prisma.customer.findUnique({
-        where: { id: orderInfo.customerId },
-        select: { status: true },
-      });
+      const customer = await this.customerServices.findOne(orderInfo.customerId);
 
-      if (!customer) {
-        throw new BadRequestException('Zugehöriger Kunde nicht gefunden!');
-      }
-
-      if (customer.status) {
+      if (customer?.status) {
         await this.customerServices.incrementLoyaltyPoints({
           id: orderInfo.customerId,
           loyalty_points: loyaltyPointsCheck(orderInfo.orderInfo),

@@ -85,6 +85,7 @@ export class CustomerService {
         fullName: true,
         email: true,
         id: true,
+        status: true,
         OrderLog: {
           select: {
             Order: {
