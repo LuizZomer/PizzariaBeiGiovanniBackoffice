@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { loginUserDTO } from './dto/login-user.dto';
 import { loginCustomerDTO } from './dto/login-customer';
 import { customerRegisterDTO } from './dto/customer-register.dto';
-import { messageGenerator } from 'src/utils/function';
+import { hashPassword, messageGenerator } from 'src/utils/function';
 
 @Injectable()
 export class AuthService {
@@ -163,15 +163,10 @@ export class AuthService {
   }
 
   async customerRegister(customer: customerRegisterDTO) {
-    const encryptedPassword = bcrypt.hashSync(
-      customer.password,
-      await bcrypt.genSalt(),
-    );
-
     await this.prisma.customer.create({
       data: {
         ...customer,
-        password: encryptedPassword,
+        password: await hashPassword(customer.password),
         loyalty_points: 0,
         status: true,
       },

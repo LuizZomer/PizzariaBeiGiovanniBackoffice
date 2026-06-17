@@ -5,10 +5,9 @@ import {
 } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
-import { messageGenerator, paginate } from 'src/utils/function';
+import { hashPassword, messageGenerator, paginate } from 'src/utils/function';
 import { UpdateCustomerInfoDTO } from './dto/update-customer-info.dto';
 
 interface ICustomerParam extends IFindAllParam {
@@ -29,11 +28,6 @@ export class CustomerService {
   }: CreateCustomerDto) {
     await this.existEmail(email);
 
-    const encryptedPassword = await bcrypt.hash(
-      password,
-      await bcrypt.genSalt(),
-    );
-
     await this.prisma.customer.create({
       data: {
         email,
@@ -41,7 +35,7 @@ export class CustomerService {
         idnr,
         loyalty_points: loyalty_points || 0,
         status,
-        password: encryptedPassword,
+        password: await hashPassword(password),
       },
     });
 
@@ -122,9 +116,7 @@ export class CustomerService {
           },
         },
       },
-      where: {
-        id,
-      },
+      where: { id },
     });
   }
 
@@ -149,13 +141,9 @@ export class CustomerService {
       status,
     };
 
-    if (password)
-      customer.password = await bcrypt.hash(password, await bcrypt.genSalt());
+    if (password) customer.password = await hashPassword(password);
 
-    await this.prisma.customer.update({
-      data: customer,
-      where: { id },
-    });
+    await this.prisma.customer.update({ data: customer, where: { id } });
 
     return messageGenerator('update');
   }
@@ -168,26 +156,15 @@ export class CustomerService {
     loyalty_points: number;
   }) {
     return this.prisma.customer.update({
-      data: {
-        loyalty_points: { increment: loyalty_points },
-      },
+      data: { loyalty_points: { increment: loyalty_points } },
       where: { id },
     });
   }
 
   async updateCustomerInfo(id: string, payload: UpdateCustomerInfoDTO) {
-    if (payload.password)
-      payload.password = await bcrypt.hash(
-        payload.password,
-        await bcrypt.genSalt(),
-      );
+    if (payload.password) payload.password = await hashPassword(payload.password);
 
-    await this.prisma.customer.update({
-      data: payload,
-      where: {
-        id,
-      },
-    });
+    await this.prisma.customer.update({ data: payload, where: { id } });
 
     return messageGenerator('update');
   }
@@ -195,23 +172,15 @@ export class CustomerService {
   async remove(id: string) {
     await this.exist(id);
 
-    await this.prisma.customer.delete({
-      where: {
-        id,
-      },
-    });
+    await this.prisma.customer.delete({ where: { id } });
 
     return messageGenerator('delete');
   }
 
   async switchStatus(id: string) {
     const customerStatus = await this.prisma.customer.findFirst({
-      select: {
-        status: true,
-      },
-      where: {
-        id,
-      },
+      select: { status: true },
+      where: { id },
     });
 
     if (!customerStatus) {
@@ -219,12 +188,8 @@ export class CustomerService {
     }
 
     await this.prisma.customer.update({
-      data: {
-        status: !customerStatus.status,
-      },
-      where: {
-        id,
-      },
+      data: { status: !customerStatus.status },
+      where: { id },
     });
 
     return messageGenerator('update');
@@ -232,9 +197,7 @@ export class CustomerService {
 
   async existEmail(email: string) {
     const customer = await this.prisma.customer.count({
-      where: {
-        email,
-      },
+      where: { email },
     });
 
     if (customer) throw new BadRequestException('Vorhandene E-Mail');
@@ -243,15 +206,9 @@ export class CustomerService {
   }
 
   async exist(id: string) {
-    const customer = await this.prisma.customer.count({
-      where: {
-        id,
-      },
-    });
+    const customer = await this.prisma.customer.count({ where: { id } });
 
-    if (customer) {
-      return true;
-    }
+    if (customer) return true;
 
     throw new NotFoundException('Id não existente');
   }

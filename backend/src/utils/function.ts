@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { IOrderInfo } from 'src/revenue/revenue.service';
 
 type IMessageType = 'create' | 'update' | 'delete';
@@ -11,6 +12,10 @@ export const messageGenerator = (msgType: IMessageType) => {
     case 'update':
       return { message: 'Erfolgreich aktualisiert!' };
   }
+};
+
+export const hashPassword = async (password: string): Promise<string> => {
+  return bcrypt.hash(password, await bcrypt.genSalt());
 };
 
 export const loyaltyPointsCheck = (orderInfo: IOrderInfo['orderInfo']) => {

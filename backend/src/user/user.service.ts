@@ -5,10 +5,9 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IFindAllParam } from 'src/utils/types';
-import { messageGenerator, paginate } from 'src/utils/function';
+import { hashPassword, messageGenerator, paginate } from 'src/utils/function';
 
 interface IFindAllUser extends IFindAllParam {
   role: string;
@@ -33,12 +32,10 @@ export class UserService {
     if (await this.userNameExist(username))
       throw new BadRequestException('Benutzername existiert bereits!');
 
-    const encryptedPassword = bcrypt.hashSync(password, await bcrypt.genSalt());
-
     const data: CreateUserDto = {
       fullName,
       idnr,
-      password: encryptedPassword,
+      password: await hashPassword(password),
       role,
       status,
       username,
@@ -46,11 +43,7 @@ export class UserService {
       workload,
     };
 
-    await this.prisma.user.create({
-      data: {
-        ...data,
-      },
-    });
+    await this.prisma.user.create({ data });
 
     return messageGenerator('create');
   }
@@ -105,9 +98,7 @@ export class UserService {
         username: true,
         workload: true,
       },
-      where: {
-        id,
-      },
+      where: { id },
     });
   }
 
@@ -137,14 +128,10 @@ export class UserService {
     };
 
     if (password) {
-      const salt = await bcrypt.genSalt();
-      data.password = bcrypt.hashSync(password, salt);
+      data.password = await hashPassword(password);
     }
 
-    await this.prisma.user.update({
-      where: { id },
-      data,
-    });
+    await this.prisma.user.update({ where: { id }, data });
 
     return messageGenerator('update');
   }
@@ -159,21 +146,13 @@ export class UserService {
         'Sie können Ihr eigenes Konto nicht löschen',
       );
 
-    await this.prisma.user.delete({
-      where: {
-        id,
-      },
-    });
+    await this.prisma.user.delete({ where: { id } });
 
     return messageGenerator('delete');
   }
 
   async roleUser(role: TRole) {
-    const user = await this.prisma.user.count({
-      where: {
-        role,
-      },
-    });
+    const user = await this.prisma.user.count({ where: { role } });
 
     if (user === 1)
       throw new BadRequestException(
@@ -184,23 +163,13 @@ export class UserService {
   }
 
   async userNameExist(username: string) {
-    return this.prisma.user.count({
-      where: {
-        username,
-      },
-    });
+    return this.prisma.user.count({ where: { username } });
   }
 
   async exist(id: string) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        id,
-      },
-    });
+    const user = await this.prisma.user.findFirst({ where: { id } });
 
-    if (user) {
-      return user;
-    }
+    if (user) return user;
 
     throw new NotFoundException('Id não existente');
   }
