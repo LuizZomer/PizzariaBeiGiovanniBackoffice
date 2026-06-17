@@ -6,13 +6,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
 import { FinanceModule } from 'src/finance/finance.module';
 
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => UserModule),
     forwardRef(() => FinanceModule),
     JwtModule.register({
-      secret: 'sdnfkjdsfkjdhsjkfhsdkjfhsdkjfhkjdsfhkjdsfkjdsfhdskjfh',
+      secret: jwtSecret,
     }),
   ],
   controllers: [AuthController],
