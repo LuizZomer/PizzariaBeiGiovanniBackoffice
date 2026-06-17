@@ -133,6 +133,7 @@ export class CustomerService {
     }: UpdateCustomerDto,
   ) {
     await this.exist(id);
+    if (email) await this.existEmail(email, id);
 
     const customer: UpdateCustomerDto = {
       email,
@@ -194,9 +195,9 @@ export class CustomerService {
     return messageGenerator('update');
   }
 
-  async existEmail(email: string) {
+  async existEmail(email: string, excludeId?: string) {
     const customer = await this.prisma.customer.count({
-      where: { email },
+      where: { email, NOT: excludeId ? { id: excludeId } : undefined },
     });
 
     if (customer) throw new BadRequestException('Vorhandene E-Mail');
