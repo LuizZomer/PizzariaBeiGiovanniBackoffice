@@ -14,15 +14,15 @@ export class AuthController {
   }
 
   @Get('userCheck')
-  async userAuthCheck(@Headers('authorization') tokenWithBearer: string) {
-    const token = tokenWithBearer.split(' ')[1] ?? '';
+  async userAuthCheck(@Headers('authorization') tokenWithBearer?: string) {
+    const token = tokenWithBearer?.split(' ')[1] ?? '';
 
     return this.authService.isValidUserToken(token);
   }
 
   @Get('customerCheck')
-  async customerAuthCheck(@Headers('authorization') tokenWithBearer: string) {
-    const token = tokenWithBearer.split(' ')[1] ?? '';
+  async customerAuthCheck(@Headers('authorization') tokenWithBearer?: string) {
+    const token = tokenWithBearer?.split(' ')[1] ?? '';
 
     return this.authService.isValidCustomerToken(token);
   }
