@@ -54,10 +54,6 @@ export class RevenueService {
     });
   }
 
-  async findAllRevenue() {
-    return this.prisma.revenue.findMany();
-  }
-
   async payRevenue({
     revenueId,
     orderInfo,
@@ -105,10 +101,6 @@ export class RevenueService {
     await this.prisma.revenue.delete({ where: { id } });
 
     return messageGenerator('delete');
-  }
-
-  async deleteAll() {
-    return this.prisma.order.deleteMany();
   }
 
   async exist(id: string) {
